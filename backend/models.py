@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Enu
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 import enum
-from datetime import datetime
+from datetime import datetime, timezone
 
 Base = declarative_base()
 
@@ -28,7 +28,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     mobile_number = Column(String, unique=True, index=True)
     full_name = Column(String)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     bookings = relationship("Booking", back_populates="customer")
 
 class Driver(Base):
@@ -64,7 +64,7 @@ class Booking(Base):
     pickup_time = Column(DateTime)
     fare_estimate = Column(Float)
     status = Column(Enum(BookingStatus, values_callable=lambda x: [e.value for e in x]), default=BookingStatus.PENDING)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     customer = relationship("User", back_populates="bookings")
     driver = relationship("Driver", back_populates="bookings")
